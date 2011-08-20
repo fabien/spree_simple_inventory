@@ -1,0 +1,4 @@
+spec/test_app
+Gemfile
+*.swp
+.DS_Store
