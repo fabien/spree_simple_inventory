@@ -1,1 +1,64 @@
-INVENTORY
+<%= render :partial => 'admin/shared/product_sub_menu' %>
+
+<h1><%= "#{t("actions.listing")} #{t("products")}" %></h1>
+
+<table class="index" id='inventory'>
+  <tr data-hook="admin_products_index_headers">
+    <th><%= sort_link @search, :sku, t("sku") %></th>
+    <th><%= sort_link @search, :name, t("name"), {}, {:title => 'admin_products_listing_name_title'} %></th>
+    <th><%= t("variant") %></th>
+    <th><%= sort_link @search, :cost_price, t("cost_price") %></th>
+    <th><%= sort_link @search, :price, t("price") %></th>
+    <th><%= sort_link @search, :count_on_hand, t("on_hand") %></th>
+    <th><%= sort_link @search, :updated_at, t("inventory_updated") %></th>
+  </tr>
+<% @masters.each do |master| %>
+  <% product = master.product %>
+  <tr <%= 'style="color:red;"' if product.deleted? %> id="<%= dom_id master %>" data-hook="inventory_product_index_rows">
+    <td><%= product.sku %></td>
+    <td><%= product.name %></td>
+    <td><%= link_to t("master"), edit_admin_product_path(product) %></td>
+    <td data-param="cost_price" class="editable"><%= number_with_precision(master.cost_price, :precision => 2) %></td>
+    <td data-param="price" class="editable"><%= number_with_precision(master.price, :precision => 2) %></td>
+    <td data-param="count_on_hand" class="<%= product.has_variants? ? 'noneditable' : 'editable' %>"><%= master.count_on_hand %></td>
+    <td><%= l master.updated_at, :format => :long %></td>
+  </tr>
+  <% product.variants.each do |variant| %>
+  <tr <%= 'style="color:red;"' if product.deleted? %> id="<%= dom_id variant %>" data-hook="inventory_variants_index_rows">
+    <td><%= variant.sku %></td>
+    <td><%= product.name %></td>
+    <td><%= link_to variant_options(variant), edit_admin_product_variant_path(product, variant) %></td>
+    <td data-param="cost_price" class="editable"><%= number_with_precision(variant.cost_price, :precision => 2) %></td>
+    <td data-param="price" class="editable"><%= number_with_precision(variant.price, :precision => 2) %></td>
+    <td data-param="count_on_hand" class="editable"><%= variant.count_on_hand %></td>
+    <td><%= l variant.updated_at, :format => :long %></td>
+  </tr>
+  <% end %>
+<% end %>
+</table>
+<%= paginate @masters %>
+
+<% content_for :sidebar do %>
+  <div data-hook="inventory_sidebar">
+    <%= form_for [:admin, @search], :url => { :action => 'index' } do |f| %>
+      <div class="box">
+        <h3><%= t(:search) %></h3>
+        <div data-hook="inventory_search">
+          <p>
+            <%= f.label :name_contains, t("name") %><br />
+            <%= f.text_field :name_contains, :size => 15 %>
+          </p>
+          <p>
+            <%= f.label :sku_contains, t("sku") %><br />
+            <%= f.text_field :sku_contains, :size => 15 %>
+          </p>
+        </div>
+        <div data-hook="inventory_search_buttons">
+          <p class="form-buttons">
+            <%= button t("search") %>
+          </p>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% end %>
