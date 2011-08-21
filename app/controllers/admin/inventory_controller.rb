@@ -5,8 +5,9 @@ class Admin::InventoryController < Admin::BaseController
   def index
     params[:search] ||= {}
     params[:search][:meta_sort] ||= "name.asc"
-    @search = Variant.master.metasearch(params[:search])
-    @masters = @search.relation.includes(:product => :variants, :option_values => {}).
+    @filtered = params[:search].keys.size > 1
+    @search = (@filtered ? Variant : Variant.master).metasearch(params[:search])
+    @items  = @search.relation.includes(:product => :variants, :option_values => {}).
                        page(params[:page]).per(Spree::Config[:admin_products_per_page])
   end
   
