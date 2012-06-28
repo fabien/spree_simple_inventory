@@ -1,4 +1,4 @@
-<%= render :partial => 'admin/shared/product_sub_menu' %>
+<%= render :partial => 'spree/admin/shared/product_sub_menu' %>
 
 <h1><%= "#{t("actions.listing")} #{t("products")}" %></h1>
 
@@ -10,7 +10,7 @@
     <th><%= sort_link @search, :cost_price, t("cost_price") %></th>
     <th><%= sort_link @search, :price, t("price") %></th>
     <th><%= sort_link @search, :count_on_hand, t("on_hand") %></th>
-    <th><%= sort_link @search, :updated_at, t("inventory_updated") %></th>
+    <th><%= sort_link @search, :product_updated_at, t("inventory_updated") %></th>
   </tr>
 <% @items.each do |item| %>
   <% product = item.product %>
@@ -22,7 +22,7 @@
     <td data-param="cost_price" class="editable"><%= number_with_precision(item.cost_price, :precision => 2) %></td>
     <td data-param="price" class="editable"><%= number_with_precision(item.price, :precision => 2) %></td>
     <td data-param="count_on_hand" class="<%= product.has_variants? ? 'noneditable' : 'editable' %>"><%= item.count_on_hand %></td>
-    <td><%= l item.updated_at, :format => :long %></td>
+    <td><%= l item.product.updated_at, :format => :long %></td>
   </tr>
   <% else %>
   <tr <%= 'style="color:red;"' if product.deleted? %> id="<%= dom_id item %>" data-hook="inventory_product_index_rows">
@@ -32,7 +32,7 @@
     <td data-param="cost_price" class="editable"><%= number_with_precision(item.cost_price, :precision => 2) %></td>
     <td data-param="price" class="editable"><%= number_with_precision(item.price, :precision => 2) %></td>
     <td data-param="count_on_hand" class="<%= product.has_variants? ? 'noneditable' : 'editable' %>"><%= item.count_on_hand %></td>
-    <td><%= l item.updated_at, :format => :long %></td>
+    <td><%= l item.product.updated_at, :format => :long %></td>
   </tr>
   <% product.variants.each do |variant| %>
   <tr <%= 'style="color:red;"' if product.deleted? %> id="<%= dom_id variant %>" data-hook="inventory_variants_index_rows">
@@ -42,7 +42,7 @@
     <td data-param="cost_price" class="editable"><%= number_with_precision(variant.cost_price, :precision => 2) %></td>
     <td data-param="price" class="editable"><%= number_with_precision(variant.price, :precision => 2) %></td>
     <td data-param="count_on_hand" class="editable"><%= variant.count_on_hand %></td>
-    <td><%= l variant.updated_at, :format => :long %></td>
+    <td><%= l variant.product.updated_at, :format => :long %></td>
   </tr>
   <% end %>
   <% end %>
@@ -52,26 +52,27 @@
 
 <% content_for :sidebar do %>
   <div data-hook="inventory_sidebar">
-    <%= form_for [:admin, @search], :url => { :action => 'index' } do |f| %>
+    <%= search_form_for [:admin, @search], :url => { :action => 'index' } do |f| %>
       <div class="box">
         <h3><%= t(:search) %></h3>
+        <%- locals = {:f => f} %>
         <div data-hook="inventory_search">
           <p>
-            <%= f.label :name_contains, t("name") %><br />
-            <%= f.text_field :name_contains, :size => 15 %>
+            <%= f.label :product_name_cont, t("name") %><br />
+            <%= f.text_field :product_name_cont, :size => 15 %>
           </p>
           <p>
-            <%= f.label :sku_contains, t("sku") %><br />
-            <%= f.text_field :sku_contains, :size => 15 %>
+            <%= f.label :sku_cont, t(:sku) %><br />
+            <%= f.text_field :sku_cont, :size => 15 %>
           </p>
           <p>
-            <%= f.label :on_hand, t("on_hand") %><br />
-            <%= f.text_field :count_on_hand_less_than_or_equal_to, :size => 5 %>
+            <%= f.label :count_on_hand_lteq, t(:on_hand) %><br />
+            <%= f.text_field :count_on_hand_lteq, :size => 5 %>
           </p>
         </div>
         <div data-hook="inventory_search_buttons">
           <p class="form-buttons">
-            <%= button t("search") %>
+            <%= button t(:search) %>
           </p>
         </div>
       </div>
